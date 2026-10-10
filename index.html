@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gerador de Blueprint</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0c12;--panel:#12151d;--line:#232837;--tx:#e8eaf0;--mu:#9aa3b2;--ac:#7c9cff;--ac2:#b07cff;--ok:#22c55e;--r:14px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 15% -10%,#1b2140 0,transparent 60%),radial-gradient(700px 400px at 100% 0,#2a1740 0,transparent 55%),var(--bg);background-attachment:fixed;color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+h1{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.wrap>*,#out .card{animation:up .5s cubic-bezier(.2,.8,.2,1) both}
+button{transition:transform .15s,border-color .15s,background .15s}button:not(:disabled):hover{transform:translateY(-1px);border-color:var(--ac)}
+button.pri{background:linear-gradient(90deg,var(--ac),var(--ac2));border:0}
+.viz{display:none;max-height:70vh;overflow:auto;padding-right:4px}.viz.on{display:block}
+.viz h4{margin:18px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}.viz h4:first-child{margin-top:0}
+.vsw{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.vsw button{padding:0;overflow:hidden;text-align:left;min-height:0;animation:pop .4s both}.vsw i{display:block;height:64px}.vsw span{display:block;padding:8px 10px;font-size:12px}
+.vty{display:grid;gap:10px}.vty div{padding:10px 12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.vbar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}.vbar div{background:linear-gradient(var(--ac),var(--ac2));border-radius:4px;min-width:30px;text-align:center;font-size:11px;color:#fff;padding-top:2px;transform-origin:bottom;animation:grow .6s both}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
+.vsf{display:flex;gap:12px;flex-wrap:wrap}.vsf div{width:96px;height:64px;display:grid;place-items:center;font-size:12px;background:#1a1f2c;border:1px solid var(--line)}
+.exp{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.exp button{min-height:36px;font-size:13px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;margin:0 0 4px}p.sub{color:var(--mu);margin:0 0 18px}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;min-height:44px}
+input[type=url],#url{flex:1;min-width:220px}
+button{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 16px;min-height:44px;cursor:pointer}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.ok{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+#status{margin:14px 0;color:var(--mu)}#status.err{color:#f87171}
+#out{display:none;grid-template-columns:1fr 360px;gap:16px;margin-top:8px}
+#out>*{min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tabs button[aria-pressed=true]{background:var(--tx);color:var(--bg)}
+iframe{width:100%;height:70vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+pre{white-space:pre-wrap;margin:0;max-height:70vh;overflow:auto;font:12.5px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.sg{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}.sg:last-child{border:0}
+.sg input{min-height:0;margin-top:4px;width:18px;height:18px}.sg .n{font-weight:700;color:var(--ac);min-width:22px}
+h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);margin:14px 0 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid2 label{display:grid;gap:4px;font-size:13px;color:var(--mu)}
+.grid2 input[type=color]{padding:2px;width:100%}
+.act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.msg{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px;font-size:13px;white-space:pre-wrap}
+@media (max-width:980px){#out{grid-template-columns:1fr}iframe{height:60vh}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Gerador de Blueprint + Clone</h1>
+<p class="sub">Cole o link de um site. Você recebe tokens, blueprint e um HTML com modos GUIA/CLONE; aprove, ajuste ou otimize antes de baixar.</p>
+<form class="bar" id="f">
+  <input id="url" type="text" inputmode="url" placeholder="https://exemplo.com" aria-label="Link do site" required>
+  <button class="pri" id="go" type="submit">Analisar</button>
+  <button type="button" id="reset">🔁 Novo link</button>
+</form>
+<div id="status" role="status" aria-live="polite"></div>
+
+<div id="out">
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button data-t="clone" aria-pressed="true">Preview CLONE</button>
+      <button data-t="guia" aria-pressed="false">Preview GUIA</button>
+      <button data-t="viz" aria-pressed="false">Interativo</button>
+      <button data-t="bp" aria-pressed="false">Blueprint (.md)</button>
+    </div>
+    <iframe id="pv" title="Preview" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div class="viz" id="viz"></div>
+    <pre id="bp" hidden></pre>
+    <div class="exp"><button id="copybp" type="button">Copiar blueprint</button><button id="ex-md" type="button">⬇ .md</button><button id="ex-html" type="button">⬇ .html</button><button id="ex-css" type="button">⬇ tokens.css</button><button id="ex-json" type="button">⬇ .json</button></div>
+  </div>
+  <div>
+    <div class="card">
+      <b id="tplid"></b> <span id="kb" style="color:var(--mu)"></span>
+      <h3>Painel de otimização</h3>
+      <div id="sg"></div>
+      <div class="act"><button id="apply" class="pri" type="button">Aplicar escolhidas</button></div>
+      <div class="msg" id="delta" hidden></div>
+      <h3>Pedir alteração</h3>
+      <div class="grid2">
+        <label>Destaque (accent)<input type="color" id="c-accent"></label>
+        <label>Fundo base<input type="color" id="c-bg"></label>
+        <label>Texto principal<input type="color" id="c-tx"></label>
+        <label>Raio dos cantos<select id="rad"><option value="1">Original</option><option value="0.5">Menor</option><option value="1.5">Maior</option><option value="2">Bem maior</option></select></label>
+      </div>
+      <label style="display:grid;gap:4px;font-size:13px;color:var(--mu);margin-top:8px">Observação livre (entra no blueprint)<textarea id="note" rows="2"></textarea></label>
+      <div class="act"><button id="change" type="button">Aplicar alteração</button></div>
+      <h3>Aprovar</h3>
+      <div class="act"><select id="cat" aria-label="Categoria"><option>OUTRO</option><option>SAAS</option><option>E-COMMERCE</option><option>PORTFOLIO</option><option>AGENCIA</option><option>SAUDE</option><option>EDTECH</option></select>
+      <button id="approve" class="ok" type="button">✔ Aprovar e baixar</button></div>
+      <div class="msg" id="done" hidden></div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+let A=null,R=null,chosen=new Set(),custom={colors:{},radiusScale:1,note:''},tab='clone';
+const status=(m,e)=>{const s=$('#status');s.textContent=m;s.className=e?'err':''};
+async function api(p,b){const r=await fetch(p,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});const j=await r.json();if(!r.ok)throw new Error(j.error||'Erro');return j}
+
+function overrides(){
+  const ov={colors:{...custom.colors},radiusScale:custom.radiusScale,note:custom.note,drop:[]};
+  R.suggestions.forEach(s=>{if(s.patch&&chosen.has(s.n)){for(const[k,v]of Object.entries(s.patch)){if(k==='drop')ov.drop.push(v);else ov[k]=v}}});
+  return ov;
+}
+function render(){
+  $('#out').style.display='grid';
+  $('#tplid').textContent=R.id;$('#kb').textContent='· '+R.kb+' KB';
+  $('#bp').textContent=R.blueprint;
+  $('#pv').srcdoc=R.html; setTab(tab);
+  const g={};R.suggestions.forEach(s=>(g[s.group]=g[s.group]||[]).push(s));
+  $('#sg').innerHTML=Object.entries(g).map(([k,v])=>`<h3>${k}</h3>`+v.map(s=>`<label class="sg"><span class="n">${s.n}</span>${s.patch?`<input type="checkbox" data-n="${s.n}" ${chosen.has(s.n)?'checked':''}>`:'<span style="width:18px"></span>'}<span>${s.text.replace(/</g,'&lt;')}</span></label>`).join('')).join('');
+  $('#sg').querySelectorAll('input').forEach(i=>i.onchange=()=>{i.checked?chosen.add(+i.dataset.n):chosen.delete(+i.dataset.n)});
+}
+function setTab(t){tab=t;document.querySelectorAll('.tabs [data-t]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===t));
+  const bp=t==='bp',vz=t==='viz';$('#bp').hidden=!bp;$('#pv').hidden=bp||vz;$('#viz').classList.toggle('on',vz);
+  if(vz)renderViz();
+  if(!bp&&!vz){const go=()=>{const b=$('#pv').contentDocument.querySelector('[data-mode="'+t+'"]');b&&b.click()};$('#pv').onload=go;go()}}
+document.querySelectorAll('.tabs [data-t]').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function copy(t,m){navigator.clipboard.writeText(t).then(()=>status(m||'Copiado.')).catch(()=>status('Não foi possível copiar.',1))}
+function renderViz(){if(!A)return;const T=A.tokens,ty=A.typo;
+  const sw=['bg-primary','bg-alt','text-primary','text-muted','accent','border'].map((k,i)=>`<button type="button" data-c="${T[k].v}" style="animation-delay:${i*50}ms"><i style="background:${T[k].v}"></i><span><b>${k}</b><br>${T[k].v}${T[k].src==='est.'?' <em>(est.)</em>':''}</span></button>`).join('');
+  const tyr=[['h1',ty.h1],['h2',ty.h2],['body',ty.body],['botão',ty.btn]].map(([n,t])=>`<div style="font-family:${esc(T['font-display'].v)};font-weight:${esc(t.weight.v)};font-size:min(${esc(t.size.v)},32px)">${n} · ${esc(t.size.v)} / ${esc(t.weight.v)}</div>`).join('');
+  const bars=T.space.v.map((v,i)=>`<div style="width:${Math.max(30,v*2)}px;height:${Math.max(18,Math.min(v,80))}px;animation-delay:${i*60}ms">${v}</div>`).join('');
+  const sf=['sm','md','lg'].map(s=>`<div style="border-radius:${T['radius-'+s].v};box-shadow:${T['shadow-'+s].v}">${s} · ${T['radius-'+s].v}</div>`).join('');
+  $('#viz').innerHTML=`<h4>Paleta (clique para copiar)</h4><div class="vsw">${sw}</div><h4>Tipografia</h4><div class="vty">${tyr}</div><h4>Espaçamento (px)</h4><div class="vbar">${bars}</div><h4>Raio e sombra</h4><div class="vsf">${sf}</div><h4>Contraste</h4><p>texto ${A.contrast.text}:1 · secundário ${A.contrast.muted}:1 · botão ${A.contrast.accentBtn}:1</p>`;
+  $('#viz').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>copy(b.dataset.c,'Copiado '+b.dataset.c))}
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+const tokensCss=()=>(R.blueprint.match(/```css\n([\s\S]*?)```/)||[,''])[1];
+$('#copybp').onclick=()=>copy(R.blueprint,'Blueprint copiado.');
+$('#ex-md').onclick=()=>dl(R.id+'.md',R.blueprint,'text/markdown');
+$('#ex-html').onclick=()=>dl(R.id+'.html',R.html,'text/html');
+$('#ex-css').onclick=()=>dl(R.id+'-tokens.css',tokensCss(),'text/css');
+$('#ex-json').onclick=()=>dl(R.id+'.json',JSON.stringify(A,null,2),'application/json');
+
+$('#f').onsubmit=async e=>{e.preventDefault();$('#go').disabled=true;status('Analisando o site… (HTML + CSS)');
+  try{const r=await api('/api/analyze',{url:$('#url').value});A=r.analysis;R=r;chosen=new Set();custom={colors:{},radiusScale:1,note:''};
+    $('#c-accent').value=A.tokens.accent.v;$('#c-bg').value=A.tokens['bg-primary'].v;$('#c-tx').value=A.tokens['text-primary'].v;$('#rad').value='1';$('#note').value='';$('#done').hidden=true;$('#delta').hidden=true;
+    render();status('Pronto. Confirmado: '+[...new Set(A.notes.confirmed)].length+' itens · estimado: '+[...new Set(A.notes.estimated)].length+(A.notes.missing.length?' · não acessado: '+A.notes.missing[0]:'')+'. Aprovo e baixo? Sugiro alterações? Ou veja as otimizações ao lado.');
+  }catch(x){status(x.message,1)}finally{$('#go').disabled=false}};
+$('#reset').onclick=()=>{A=R=null;$('#out').style.display='none';$('#url').value='';$('#url').focus();status('')};
+
+async function regen(){const before=R.kb;R=await api('/api/regenerate',{analysis:A,overrides:overrides()});render();
+  const ch=R.suggestions.filter(s=>chosen.has(s.n)&&s.patch).map(s=>s.n);
+  $('#delta').hidden=false;$('#delta').textContent='Delta: '+(ch.length?'aplicadas '+ch.join(', ')+'. ':'')+'peso '+before+' KB → '+R.kb+' KB ('+(R.kb-before>=0?'+':'')+(R.kb-before)+' KB). Aprovo e baixo?'}
+$('#apply').onclick=()=>regen().catch(x=>status(x.message,1));
+$('#change').onclick=()=>{custom.colors={'accent':$('#c-accent').value,'bg-primary':$('#c-bg').value,'text-primary':$('#c-tx').value};
+  // só envia o que mudou em relação ao original
+  const o={accent:A.tokens.accent.v,'bg-primary':A.tokens['bg-primary'].v,'text-primary':A.tokens['text-primary'].v};
+  for(const k of Object.keys(o))if(custom.colors[k].toLowerCase()===o[k].toLowerCase())delete custom.colors[k];
+  custom.radiusScale=+$('#rad').value;custom.note=$('#note').value;regen().catch(x=>status(x.message,1))};
+$('#approve').onclick=async()=>{try{const r=await api('/api/approve',{analysis:A,overrides:overrides(),category:$('#cat').value});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([r.html],{type:'text/html'}));a.download=r.id+'.html';a.click();
+  $('#done').hidden=false;$('#done').textContent='Aprovado: '+r.id+'\nSalvo em '+r.folder+'\nLinha para o índice:\n'+r.row}catch(x){status(x.message,1)}};
+</script>
+</body></html>

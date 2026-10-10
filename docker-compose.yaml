@@ -1,0 +1,21 @@
+# Gerador de Blueprint — projeto isolado, publicado pelo Traefik existente via labels.
+services:
+  blueprint:
+    build:
+      context: https://github.com/inetoc/gerador-blueprint.git#master
+    container_name: gerador-blueprint
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    cpus: 0.5
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "2" }
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.blueprint.rule=Host(`blueprint.glitchorganic.com`)
+      - traefik.http.routers.blueprint.entrypoints=websecure
+      - traefik.http.routers.blueprint.tls.certresolver=letsencrypt
+      - traefik.http.services.blueprint.loadbalancer.server.port=3000
